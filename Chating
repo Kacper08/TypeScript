@@ -1,0 +1,193 @@
+/////////////////////////////////////////////////
+
+// Lua
+
+/chat-app
+|-- server
+|   |-- node_modules
+|   |-- src
+|   |   |-- index.ts
+|   |-- package.json
+|-- client
+|   |-- node_modules
+|   |-- public
+|   |   |-- index.html
+|   |-- src
+|   |   |-- index.ts
+|   |-- package.json
+|-- package.json
+
+/////////////////////////////////////////////////////////////
+
+// bash
+
+npm install express body-parser cors @types/express @types/node typescript ts-node
+
+
+////////////////////////////////////////////////////////////////
+
+// typescript
+
+import express, { Request, Response } from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+
+const app = express();
+const PORT = 3001;
+
+app.use(cors());
+app.use(bodyParser.json());
+
+const messages: string[] = [];
+
+app.get('/messages', (req: Request, res: Response) => {
+  res.json({ messages });
+});
+
+app.post('/messages', (req: Request, res: Response) => {
+  const { message } = req.body;
+  messages.push(message);
+  res.json({ success: true });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+
+/////////////////////////////////////////////////////////////////
+
+//json
+
+{
+  "scripts": {
+    "start": "ts-node src/index.ts"
+  }
+}
+
+
+///////////////////////////////////////////////////////////////
+
+// bash
+
+cd server
+npm start
+
+
+////////////////////////////////////////////////////////////////////
+
+// bash
+
+npm install typescript ts-loader webpack webpack-cli webpack-dev-server
+
+//////////////////////////////////////////////////////////////
+
+// json
+
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["dom", "es2017"],
+    "module": "commonjs",
+    "strict": true
+  }
+}
+
+
+//////////////////////////////////////////////////////////////
+
+// typescript
+
+const apiUrl = 'http://localhost:3001';
+
+function fetchMessages() {
+  return fetch(`${apiUrl}/messages`).then((response) => response.json());
+}
+
+function postMessage(message: string) {
+  return fetch(`${apiUrl}/messages`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message }),
+  }).then((response) => response.json());
+}
+
+function renderMessages(messages: string[]) {
+  const messageContainer = document.getElementById('messages');
+  if (messageContainer) {
+    messageContainer.innerHTML = messages.map((msg) => `<p>${msg}</p>`).join('');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const messageForm = document.getElementById('message-form');
+  const messageInput = document.getElementById('message-input');
+
+  if (messageForm && messageInput) {
+    messageForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const message = messageInput.value;
+      await postMessage(message);
+      const { messages } = await fetchMessages();
+      renderMessages(messages);
+      messageInput.value = '';
+    });
+
+    // Initial fetch and render
+    (async () => {
+      const { messages } = await fetchMessages();
+      renderMessages(messages);
+    })();
+  }
+});
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+// html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
+</head>
+<body>
+  <div id="messages"></div>
+  <form id="message-form">
+    <input type="text" id="message-input" placeholder="Type a message..." />
+    <button type="submit">Send</button>
+  </form>
+  <script src="./src/index.ts"></script>
+</body>
+</html>
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// json
+
+{
+  "scripts": {
+    "start": "webpack serve --mode development --open"
+  }
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+bash
+
+cd client
+npm start
+
+////////////////////////////////////////////////////////////////////
+
+// Made by Kax_per08/Bln.kacper
+// Used bash/json/html/typescript/lua
